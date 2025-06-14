@@ -1,0 +1,38 @@
+<clickhouse replace="true">
+	<logger>
+		<level>debug</level>
+		<log>/var/log/clickhouse-server/clickhouse-server.log</log>
+		<errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
+		<size>1000M</size>
+		<count>3</count>
+	</logger>
+
+	<display_name>clickhouse</display_name>
+
+	<!-- Сетевые настройки -->
+	<listen_host>0.0.0.0</listen_host>
+	<http_port>8123</http_port>
+	<tcp_port>9000</tcp_port>
+
+	<!-- Аутентификация -->
+	<user_directories>
+		<users_xml>
+			<path>users.xml</path>
+		</users_xml>
+		<local_directory>
+			<path>/var/lib/clickhouse/access/</path>
+		</local_directory>
+	</user_directories>
+
+	<!-- Отключаем распределённые DDL-запросы -->
+	<distributed_ddl remove="true"/>
+
+	<!-- Отключаем ZooKeeper/Keeper секцию полностью -->
+	<zookeeper remove="true"/>
+
+	<!-- Дополнительные настройки для standalone режима -->
+	<path>/var/lib/clickhouse/</path>
+	<tmp_path>/var/lib/clickhouse/tmp/</tmp_path>
+	<uncompressed_cache_size>8589934592</uncompressed_cache_size>
+	<mark_cache_size>5368709120</mark_cache_size>
+</clickhouse>

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Configure logger
+function log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
+# Execute migrations
+function run_migrations() {
+    local migration_dir="/migrations"
+
+    if [ ! -d "$migration_dir" ]; then
+        log "Error: Migration directory $migration_dir not found"
+        exit 1
+    fi
+
+    for migration_file in "$migration_dir"/*.sql; do
+        if [ ! -f "$migration_file" ]; then
+            log "Warning: No migration files found in $migration_dir"
+            break
+        fi
+
+        log "Executing migrations from $migration_file"
+        /usr/sap/HXE/HDB90/exe/hdbsql -i 90 -d HXE -u SYSTEM -p "$HANA_PASSWORD" -I "$migration_file"
+
+        if [ $? -ne 0 ]; then
+            log "Error occurred while executing $migration_file"
+            exit 1
+        fi
+
+        log "Migration from $migration_file completed successfully"
+    done
+
+    log "All migrations completed successfully"
+}
+
+function main() {
+    case "$_HOOK_START_TYPE" in
+        initial)
+            echo "Migrating..."
+            run_migrations
+            ;;
+        *)
+            log "Skipping migrations (start type: ${_HOOK_START_TYPE})"
+            ;;
+    esac
+}
+
+main
